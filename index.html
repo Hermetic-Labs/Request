@@ -1,0 +1,1195 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enterprise Airline Repair Platform - Pricing Calculator</title>
+    <style>
+        :root {
+            --primary: #00ff88;
+            --primary-dim: #00cc6a;
+            --accent-blue: #4d9fff;
+            --accent-red: #ff6b6b;
+            --accent-orange: #ffa94d;
+            --bg-dark: #0a0a0a;
+            --bg-card: #111111;
+            --text: #e0e0e0;
+            --text-dim: #888888;
+            --border: #222222;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text);
+            line-height: 1.7;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: var(--primary);
+            font-size: 2.2rem;
+            margin-bottom: 8px;
+            background: linear-gradient(90deg, var(--primary), var(--accent-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            color: var(--text-dim);
+            font-size: 0.95rem;
+            margin-bottom: 40px;
+        }
+
+        .section {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            margin-bottom: 16px;
+            overflow: hidden;
+            border-left: 3px solid var(--accent-blue);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 20px;
+            cursor: pointer;
+            transition: background 0.2s;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .section-header:hover {
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .section-title {
+            font-size: 1rem;
+            color: var(--text);
+            font-weight: 600;
+            flex: 1;
+        }
+
+        .section-slider-total {
+            font-size: 0.8rem;
+            color: var(--text-dim);
+            width: 100%;
+            margin-top: 4px;
+        }
+
+        .section-content {
+            padding: 0 20px 16px;
+            display: none;
+            border-top: 1px solid var(--border);
+        }
+
+        .section.active .section-content {
+            display: block;
+            padding-top: 16px;
+        }
+
+        .section-header::after {
+            content: '▾';
+            color: var(--text-dim);
+            font-size: 1.2rem;
+            transition: transform 0.3s;
+        }
+
+        .section.active .section-header::after {
+            transform: rotate(180deg);
+        }
+
+        .item {
+            display: grid;
+            grid-template-columns: 1fr auto auto auto;
+            gap: 12px;
+            align-items: center;
+            padding: 10px 12px;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 6px;
+            margin-bottom: 8px;
+        }
+
+        .item:last-child {
+            margin-bottom: 0;
+        }
+
+        .item-name {
+            font-size: 0.85rem;
+            color: var(--text);
+        }
+
+        .item-desc {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            font-style: italic;
+            margin-top: 4px;
+            grid-column: 1 / -1;
+            border-left: 2px solid var(--border);
+            padding-left: 10px;
+        }
+
+        .section-desc {
+            font-size: 0.8rem;
+            color: var(--text-dim);
+            font-style: italic;
+            margin-bottom: 16px;
+            padding: 10px 12px;
+            background: rgba(255, 255, 255, 0.02);
+            border-left: 2px solid var(--accent-blue);
+            border-radius: 0 4px 4px 0;
+        }
+
+        .item-range {
+            color: var(--accent-blue);
+            font-size: 0.8rem;
+            white-space: nowrap;
+        }
+
+        .item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--primary);
+            cursor: pointer;
+        }
+
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .slider-container input[type="range"] {
+            width: 100px;
+            accent-color: var(--primary);
+            cursor: pointer;
+        }
+
+        .item-value {
+            color: var(--primary);
+            font-weight: 600;
+            min-width: 90px;
+            text-align: right;
+            font-size: 0.85rem;
+            justify-self: end;
+        }
+
+        .summary {
+            background: var(--bg-card);
+            border: 1px solid var(--primary);
+            border-radius: 8px;
+            padding: 24px;
+            margin-top: 32px;
+        }
+
+        .summary h2 {
+            color: var(--primary);
+            font-size: 1.4rem;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .summary-item {
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 6px;
+            border: 1px solid rgba(77, 159, 255, 0.3);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 0 8px rgba(77, 159, 255, 0.15);
+        }
+
+        .summary-label {
+            color: var(--text-dim);
+            font-size: 0.75rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .summary-value {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--primary);
+            white-space: nowrap;
+            text-align: right;
+            min-width: 100px;
+        }
+
+        .grand-total {
+            text-align: center;
+            padding: 20px;
+            background: linear-gradient(135deg, rgba(0, 255, 136, 0.08), rgba(77, 159, 255, 0.08));
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border);
+        }
+
+        .grand-total-label {
+            color: var(--text-dim);
+            font-size: 0.85rem;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .grand-total-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .timeline {
+            margin: 24px 0;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+
+        .timeline-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .timeline-title {
+            font-size: 0.9rem;
+            color: var(--text);
+            font-weight: 600;
+        }
+
+        .timeline-estimate {
+            font-size: 1.1rem;
+            color: var(--accent-blue);
+            font-weight: 700;
+        }
+
+        .timeline-track {
+            position: relative;
+            height: 8px;
+            background: var(--border);
+            border-radius: 4px;
+            margin: 20px 0;
+        }
+
+        .timeline-progress {
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            border-radius: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--accent-blue));
+            transition: width 0.3s ease;
+        }
+
+        .timeline-markers {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 8px;
+        }
+
+        .timeline-marker {
+            font-size: 0.7rem;
+            color: var(--text-dim);
+        }
+
+        .timeline-phases {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 20px;
+        }
+
+        .timeline-phase {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 12px;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 6px;
+            border-left: 3px solid var(--border);
+            opacity: 0.4;
+            transition: all 0.3s;
+        }
+
+        .timeline-phase.active {
+            opacity: 1;
+            border-left-color: var(--primary);
+        }
+
+        .timeline-phase.active .phase-icon {
+            color: var(--primary);
+        }
+
+        .phase-icon {
+            font-size: 1.1rem;
+            width: 24px;
+            text-align: center;
+        }
+
+        .phase-info {
+            flex: 1;
+        }
+
+        .phase-name {
+            font-size: 0.8rem;
+            color: var(--text);
+            font-weight: 500;
+        }
+
+        .phase-duration {
+            font-size: 0.7rem;
+            color: var(--text-dim);
+        }
+
+        .phase-status {
+            font-size: 0.7rem;
+            padding: 2px 8px;
+            border-radius: 10px;
+            background: var(--border);
+            color: var(--text-dim);
+        }
+
+        .phase-status.included {
+            background: rgba(0, 255, 136, 0.15);
+            color: var(--primary);
+        }
+
+        .buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 28px;
+            font-size: 0.9rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 600;
+        }
+
+        .btn-primary {
+            background: linear-gradient(90deg, var(--primary), var(--accent-blue));
+            color: var(--bg-dark);
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(90deg, var(--primary-dim), #3d8fef);
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            border: 1px solid var(--accent-blue);
+            color: var(--accent-blue);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            background: rgba(0, 255, 136, 0.05);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--bg-card);
+            padding: 30px;
+            border-radius: 8px;
+            max-width: 600px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            border: 1px solid var(--primary);
+            position: relative;
+        }
+
+        .modal h2 {
+            color: var(--primary);
+            margin-bottom: 20px;
+            font-size: 1.4rem;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            color: var(--text-dim);
+            font-size: 0.85rem;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            background: var(--bg-dark);
+            color: var(--text);
+            font-size: 0.95rem;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .form-group textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 1.5rem;
+            color: var(--text-dim);
+            cursor: pointer;
+        }
+
+        .close-btn:hover {
+            color: var(--primary);
+        }
+
+        .order-summary {
+            background: var(--bg-dark);
+            padding: 16px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            max-height: 180px;
+            overflow-y: auto;
+            border: 1px solid var(--border);
+        }
+
+        .order-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.85rem;
+        }
+
+        .order-item:last-child {
+            border-bottom: none;
+        }
+
+        .order-item span:first-child {
+            color: var(--text);
+        }
+
+        .order-item span:last-child {
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        /* Mobile Styles */
+        @media (max-width: 768px) {
+            body {
+                padding: 20px 15px 40px 15px;
+                overflow-x: hidden;
+            }
+
+            h1 {
+                font-size: 1.6rem;
+            }
+
+            .item {
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
+
+            .item-range,
+            .slider-container,
+            .item-value {
+                justify-self: start;
+            }
+
+            .slider-container {
+                width: 100%;
+            }
+
+            .slider-container input[type="range"] {
+                flex: 1;
+            }
+
+            /* Summary flows normally — no fixed positioning */
+            .summary {
+                margin-top: 24px;
+                margin-bottom: 40px;
+            }
+
+            .summary-header-mobile {
+                display: none;
+            }
+
+            .summary-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .buttons {
+                flex-direction: column;
+                width: 100%;
+                gap: 10px;
+            }
+
+            .btn {
+                width: 100%;
+            }
+
+            .timeline-phases {
+                max-height: none;
+                overflow-y: visible;
+            }
+        }
+
+        /* Desktop Adjustment for Discount Row */
+        .discount-row {
+            grid-column: 1 / -1;
+            background: rgba(255, 107, 107, 0.1);
+            border: 1px dashed var(--accent-red);
+        }
+
+        .discount-label {
+            color: var(--accent-red);
+            font-weight: bold;
+        }
+
+        .discount-value {
+            color: var(--accent-red);
+        }
+
+        @media (max-width: 768px) {
+
+            /* Improve touch targets */
+            .item {
+                padding: 16px;
+                min-height: 60px;
+            }
+
+            .item input[type="checkbox"] {
+                width: 24px;
+                height: 24px;
+            }
+
+            .slider-container input[type="range"] {
+                height: 24px;
+            }
+
+            .modal-content {
+                max-height: 90vh;
+                max-height: 90dvh;
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
+                overscroll-behavior: contain;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>HERMETIC LABS PROJECT REQUEST FORM</h1>
+        <p class="subtitle">Project pricing playground</p>
+
+        <div id="sections"></div>
+
+        <div class="section summary" id="summaryPanel" style="border-left-color: var(--primary);">
+            <h2 style="color: var(--primary); border-bottom: 1px solid var(--border); padding-bottom: 12px;">Cost
+                Summary</h2>
+            <div class="summary-grid" id="summaryGrid"></div>
+
+            <div class="grand-total">
+                <div class="grand-total-label">Final Project Estimate (50% Off)</div>
+                <div class="grand-total-value" id="grandTotal">$0K – $0K</div>
+            </div>
+
+            <div class="timeline">
+                <div class="timeline-header">
+                    <span class="timeline-title">📦 Estimated Delivery Timeline</span>
+                    <span class="timeline-estimate" id="timelineEstimate">2 weeks</span>
+                </div>
+                <div class="timeline-track">
+                    <div class="timeline-progress" id="timelineProgress" style="width: 0%;"></div>
+                </div>
+                <div class="timeline-markers">
+                    <span class="timeline-marker">2 wks</span>
+                    <span class="timeline-marker">6 wks</span>
+                    <span class="timeline-marker">3 mo</span>
+                    <span class="timeline-marker">6 mo</span>
+                </div>
+                <div class="timeline-phases" id="timelinePhases"></div>
+            </div>
+
+            <div class="buttons">
+                <button class="btn btn-primary" onclick="openModal()">Generate Order Request</button>
+                <button class="btn btn-secondary" onclick="selectAll()">Select All</button>
+                <button class="btn btn-secondary" onclick="clearAll()">Clear All</button>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="modal" id="orderModal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal()">&times;</span>
+            <h2>Order Request Form</h2>
+            <div class="order-summary" id="orderSummary"></div>
+            <div class="grand-total" style="margin-bottom: 20px;">
+                <div class="grand-total-label">Estimated Total (Wife Discount applied)</div>
+                <div class="grand-total-value" id="modalTotal">$0K – $0K</div>
+            </div>
+            <form id="orderForm">
+                <div class="form-group">
+                    <label>Company Name *</label>
+                    <input type="text" id="companyName" required>
+                </div>
+                <div class="form-group">
+                    <label>Contact Name *</label>
+                    <input type="text" id="contactName" required>
+                </div>
+                <div class="form-group">
+                    <label>Email *</label>
+                    <input type="email" id="email" required>
+                </div>
+                <div class="form-group">
+                    <label>Phone</label>
+                    <input type="tel" id="phone">
+                </div>
+                <div class="form-group">
+                    <label>Additional Notes</label>
+                    <textarea id="notes" placeholder="Any specific requirements or questions..."></textarea>
+                </div>
+                <div class="buttons">
+                    <button type="button" class="btn btn-secondary" onclick="copyToClipboard()">Copy Request to
+                        Clipboard</button>
+                    <button type="submit" class="btn btn-primary">Submit Request</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const pricingData = [
+            {
+                name: "1. Discovery, Architecture & Planning",
+                desc: "The foundation phase where we learn your business, map out the technical blueprint, and design how everything will look and work together.",
+                items: [
+                    { name: "Requirements workshops & stakeholder interviews", min: 12000, max: 18000, desc: "We sit down with your team to understand exactly what you need—your workflows, pain points, and goals." },
+                    { name: "System architecture (cloud, API, DB, security)", min: 18000, max: 30000, desc: "The master plan for how all the technology pieces connect—think of it as the building's blueprint before construction." },
+                    { name: "JetNet API analysis & integration design", min: 10000, max: 18000, desc: "Figuring out how to pull in your existing JetNet data seamlessly so nothing gets lost in translation." },
+                    { name: "Data model & schema design", min: 8000, max: 15000, desc: "Organizing how your information will be stored and retrieved—like setting up a smart filing system." },
+                    { name: "UX wireframes (all platforms)", min: 15000, max: 25000, desc: "Sketches of every screen users will see, ensuring the app is intuitive before we build it." },
+                    { name: "Technical roadmap & sprint planning", min: 6000, max: 10000, desc: "A clear timeline of what gets built when, so you always know what's happening next." }
+                ]
+            },
+            {
+                name: "2. Backend Infrastructure & Core Platform",
+                desc: "The engine room—this is the powerful technology running behind the scenes that makes everything work reliably and securely.",
+                items: [
+                    { name: "Cloud architecture setup (AWS/Azure/GCP)", min: 20000, max: 40000, desc: "Setting up secure, scalable servers in the cloud so your platform can grow with your business." },
+                    { name: "Backend API development", min: 60000, max: 120000, desc: "Building the communication layer that lets all parts of your system talk to each other." },
+                    { name: "Real-time data ingestion pipeline (JetNet sync)", min: 40000, max: 75000, desc: "A live data feed that keeps your platform automatically updated with the latest information." },
+                    { name: "Custom data parsing & normalization engine", min: 35000, max: 65000, desc: "Translating messy data from different sources into clean, consistent information you can actually use." },
+                    { name: "Job tracking & workflow engine", min: 45000, max: 80000, desc: "Automated tracking of repair jobs from start to finish—no more manual status updates." },
+                    { name: "Role-based authentication & permissions", min: 18000, max: 30000, desc: "Making sure the right people see the right things—managers see everything, technicians see their jobs." },
+                    { name: "Database build (SQL/NoSQL hybrid)", min: 30000, max: 60000, desc: "The secure vault where all your data lives, optimized for both speed and reliability." },
+                    { name: "Analytics engine & reporting", min: 45000, max: 85000, desc: "Turn your raw data into actionable insights—dashboards, charts, and reports at a glance." },
+                    { name: "Audit logging & compliance layer", min: 12000, max: 25000, desc: "A detailed record of every action taken in the system—essential for compliance and accountability." }
+                ]
+            },
+            {
+                name: "3. 3D Globe Application",
+                desc: "A stunning visual command center showing your global operations on an interactive 3D map—see aircraft, repairs, and facilities worldwide at a glance.",
+                items: [
+                    { name: "3D globe rendering engine (Cesium/Three.js/Unity)", min: 40000, max: 75000, desc: "The core technology that creates the smooth, responsive 3D Earth you can spin, zoom, and explore." },
+                    { name: "Real-time aircraft/repair data overlay", min: 35000, max: 65000, desc: "Live markers showing where aircraft are, what repairs are happening, and facility locations." },
+                    { name: "Filtering, search & custom views", min: 30000, max: 55000, desc: "Quickly find what you're looking for—filter by region, status, aircraft type, or any criteria." },
+                    { name: "Performance optimization (enterprise scale)", min: 25000, max: 50000, desc: "Ensuring the globe stays smooth even when displaying thousands of data points simultaneously." },
+                    { name: "Interactive UI controls & dashboards", min: 25000, max: 45000, desc: "Click on any marker for details—see repair status, timelines, and take action right from the map." }
+                ]
+            },
+            {
+                name: "4A. iOS App",
+                desc: "A native iPhone and iPad app so your team can access everything on the go—optimized for Apple's ecosystem.",
+                items: [
+                    { name: "Native iOS build (Swift/SwiftUI)", min: 70000, max: 120000, desc: "A purpose-built iPhone/iPad app that feels fast and natural, using Apple's latest technology." },
+                    { name: "Apple Watch connectivity (optional)", min: 20000, max: 35000, desc: "Get notifications and quick updates right on your wrist—perfect for busy technicians." },
+                    { name: "App Store compliance & deployment", min: 8000, max: 15000, desc: "Handling all the paperwork and requirements to get your app approved and published." }
+                ]
+            },
+            {
+                name: "4B. Android App",
+                desc: "A native Android app for the majority of global smartphone users—works great on phones and tablets.",
+                items: [
+                    { name: "Native Android build (Kotlin)", min: 65000, max: 115000, desc: "A dedicated Android app built with modern technology for smooth performance on any device." },
+                    { name: "Wear OS integration (optional)", min: 18000, max: 30000, desc: "Smartwatch support for quick glances at updates without pulling out your phone." },
+                    { name: "Play Store deployment", min: 6000, max: 12000, desc: "Getting your app published on Google Play so your team can download it easily." }
+                ]
+            },
+            {
+                name: "4C. Windows Desktop App",
+                desc: "A full-featured desktop application for Windows PCs—ideal for office staff who need maximum screen space and productivity.",
+                items: [
+                    { name: "Windows desktop build (UWP/.NET/MAUI)", min: 60000, max: 110000, desc: "A powerful Windows application with all the features, optimized for keyboard and mouse." },
+                    { name: "Microsoft Store packaging & deployment", min: 8000, max: 12000, desc: "Easy installation through the Microsoft Store with automatic updates." }
+                ]
+            },
+            {
+                name: "4D. macOS Desktop App",
+                desc: "A native Mac application for teams using Apple computers—seamlessly integrates with the Mac experience.",
+                items: [
+                    { name: "macOS native build", min: 55000, max: 100000, desc: "A true Mac app that feels right at home alongside your other Apple software." },
+                    { name: "Mac App Store deployment", min: 8000, max: 12000, desc: "Published through Apple's Mac App Store for trusted, easy installation." }
+                ]
+            },
+            {
+                name: "5. Customer Portal (Web-Based)",
+                desc: "A dedicated website where your customers can log in to check their repair status, approve work, and communicate with your team.",
+                items: [
+                    { name: "Secure client portal frontend", min: 50000, max: 85000, desc: "A professional, branded website where customers securely access their account and job information." },
+                    { name: "Timeline visualization system", min: 20000, max: 40000, desc: "Visual progress trackers so customers can see exactly where their repair stands at any moment." },
+                    { name: "E-signature integration", min: 12000, max: 20000, desc: "Customers can approve quotes and sign documents digitally—no printing or scanning needed." },
+                    { name: "Messaging & notification system", min: 18000, max: 30000, desc: "Built-in communication so customers get updates and can ask questions without phone calls." },
+                    { name: "Billing/payment module (optional)", min: 15000, max: 30000, desc: "Accept payments directly through the portal—credit cards, invoicing, the works." }
+                ]
+            },
+            {
+                name: "6. Customer Onboarding & Demo Mode",
+                desc: "First impressions matter—these features help new users get started quickly and let your sales team showcase the platform beautifully.",
+                items: [
+                    { name: "Interactive onboarding flow", min: 15000, max: 25000, desc: "A guided tour that walks new users through the platform step by step—no training manuals needed." },
+                    { name: "Video/media integration", min: 8000, max: 15000, desc: "Embedded tutorials and help videos right where users need them." },
+                    { name: "Kiosk/demo mode build", min: 20000, max: 40000, desc: "A special mode for trade shows and presentations—looks impressive without needing real data." },
+                    { name: "Sales-mode UI experience", min: 10000, max: 20000, desc: "A polished demo environment your sales team can use to wow potential customers." }
+                ]
+            },
+            {
+                name: "7. DevOps, Security & Testing",
+                desc: "The invisible work that keeps everything running smoothly, securely, and reliably—peace of mind for your operation.",
+                items: [
+                    { name: "CI/CD pipeline setup", min: 15000, max: 25000, desc: "Automated systems that let us push updates quickly and safely without downtime." },
+                    { name: "Automated testing framework", min: 25000, max: 45000, desc: "Hundreds of automatic checks that run before every update to catch problems early." },
+                    { name: "Penetration testing & security audit", min: 20000, max: 40000, desc: "Professional hackers (the good kind) try to break in and tell us how to strengthen defenses." },
+                    { name: "Load testing (enterprise data scale)", min: 15000, max: 30000, desc: "Stress tests to make sure the system stays fast even during your busiest days." },
+                    { name: "Disaster recovery & backup systems", min: 10000, max: 20000, desc: "Automatic backups and recovery plans so your data is never at risk." }
+                ]
+            }
+        ];
+
+        let selections = {};
+
+        const formatVal = (val) => {
+            if (val >= 1000000) return `$${(val / 1000000).toFixed(1).replace(/\.0$/, '')}M`;
+            if (val >= 1000) return `$${Math.round(val / 1000).toLocaleString()}K`;
+            return `$${val}`;
+        };
+        const formatRange = (min, max) => `${formatVal(min)} – ${formatVal(max)}`;
+
+        function init() {
+            const container = document.getElementById('sections');
+            pricingData.forEach((section, sIdx) => {
+                const sectionEl = document.createElement('div');
+                sectionEl.className = 'section';
+                sectionEl.innerHTML = `
+                    <div class="section-header" onclick="toggleSection(${sIdx})">
+                        <span class="section-title">${section.name}</span>
+                        <div class="section-slider-total">Selected: <span id="sectionSliderTotal${sIdx}" style="color: var(--primary); font-weight: 600;">$0K – $0K</span></div>
+                    </div>
+                    <div class="section-content" id="sectionContent${sIdx}">
+                        <div class="section-desc">"${section.desc}"</div>
+                        ${section.items.map((item, iIdx) => {
+                    const key = `${sIdx}-${iIdx}`;
+                    selections[key] = { selected: false, percent: 50, min: item.min, max: item.max, name: item.name, section: section.name };
+                    return `
+                                <div class="item">
+                                    <div class="item-name">${item.name}</div>
+                                    <div class="item-range">${formatRange(item.min, item.max)}</div>
+                                    <div class="slider-container">
+                                        <input type="range" min="0" max="100" value="50" oninput="updateSlider('${key}', this.value)" id="slider${key}">
+                                    </div>
+                                    <input type="checkbox" onchange="toggleItem('${key}', this.checked)" id="check${key}">
+                                    <div class="item-value" id="value${key}">$0K</div>
+                                    <div class="item-desc">"${item.desc}"</div>
+                                </div>
+                            `;
+                }).join('')}
+                    </div>
+                `;
+                container.appendChild(sectionEl);
+            });
+            updateTotals();
+
+        }
+
+        function toggleSection(idx) {
+            document.querySelectorAll('.section')[idx].classList.toggle('active');
+        }
+
+        function toggleItem(key, checked) {
+            selections[key].selected = checked;
+            updateTotals();
+        }
+
+        function updateSlider(key, value) {
+            selections[key].percent = parseInt(value);
+            updateTotals();
+        }
+
+
+
+        function calculateValue(sel) {
+            if (!sel.selected) return { min: 0, max: 0 };
+            const range = sel.max - sel.min;
+            const minVal = sel.min + (range * sel.percent / 100 * 0.5);
+            const maxVal = sel.min + range * 0.5 + (range * sel.percent / 100 * 0.5);
+            return { min: Math.round(minVal), max: Math.round(maxVal) };
+        }
+
+        function updateTotals() {
+            let grandMin = 0, grandMax = 0;
+            const sectionTotals = {};
+
+            Object.entries(selections).forEach(([key, sel]) => {
+                const val = calculateValue(sel);
+                document.getElementById(`value${key}`).textContent = sel.selected ? formatRange(val.min, val.max) : '$0K';
+                grandMin += val.min;
+                grandMax += val.max;
+
+                const sIdx = key.split('-')[0];
+                if (!sectionTotals[sIdx]) sectionTotals[sIdx] = { min: 0, max: 0 };
+                sectionTotals[sIdx].min += val.min;
+                sectionTotals[sIdx].max += val.max;
+            });
+
+            // Update sub-totals
+            Object.entries(sectionTotals).forEach(([sIdx, totals]) => {
+                document.getElementById(`sectionSliderTotal${sIdx}`).textContent = formatRange(totals.min, totals.max);
+            });
+
+            // Retainer Logic (Display Only)
+            const retainerMin = Math.round(grandMin * 0.07);
+            const retainerMax = Math.round(grandMax * 0.07);
+
+            // Discount Logic (50% of Subtotal)
+            const discountMin = Math.round(grandMin * 0.5);
+            const discountMax = Math.round(grandMax * 0.5);
+
+            // Final Total (Subtotal - Discount)
+            const finalMin = grandMin - discountMin;
+            const finalMax = grandMax - discountMax;
+
+            // Update Displays
+            document.getElementById('grandTotal').textContent = formatRange(finalMin, finalMax);
+
+            const summaryGrid = document.getElementById('summaryGrid');
+            const sectionsHtml = Object.entries(sectionTotals).map(([sIdx, totals]) => `
+                <div class="summary-item">
+                    <div class="summary-label">${pricingData[sIdx].name.replace(/^\d+[A-D]?\.\s*/, '')}</div>
+                    <div class="summary-value">${formatRange(totals.min, totals.max)}</div>
+                </div>
+            `).join('');
+
+            // Add Retainer & Discount Rows
+            const extrasHtml = `
+                <div class="summary-item" style="background: rgba(77, 159, 255, 0.1); border-color: var(--accent-blue);">
+                    <div class="summary-label" style="color: var(--accent-blue); font-weight: bold;">Retainer Fee (7%)</div>
+                    <div class="summary-value" style="color: var(--accent-blue);">${formatRange(retainerMin, retainerMax)}</div>
+                </div>
+                <div class="summary-item discount-row">
+                    <div class="summary-label discount-label">Wife Discount (50%)</div>
+                    <div class="summary-value discount-value">-${formatRange(discountMin, discountMax)}</div>
+                </div>
+            `;
+
+            summaryGrid.innerHTML = sectionsHtml + extrasHtml;
+
+            updateTimeline(grandMin, grandMax, sectionTotals);
+        }
+
+        function calculateWeeks(avgCost) {
+            if (avgCost <= 0) return 0;
+            if (avgCost < 100000) return 2;
+            if (avgCost >= 1000000) return 26; // 6 months
+            // Linear interpolation: 100K->6 weeks, 1M->26 weeks
+            const ratio = (avgCost - 100000) / (1000000 - 100000);
+            return Math.round(6 + ratio * 20);
+        }
+
+        function formatDuration(weeks) {
+            if (weeks <= 0) return '—';
+            if (weeks < 4) return `${weeks} week${weeks > 1 ? 's' : ''}`;
+            if (weeks < 12) return `${Math.round(weeks)} weeks`;
+            const months = Math.round(weeks / 4.33);
+            return `${months} month${months > 1 ? 's' : ''}`;
+        }
+
+        function updateTimeline(minCost, maxCost, sectionTotals) {
+            const avgCost = (minCost + maxCost) / 2;
+            const weeks = calculateWeeks(avgCost);
+
+            // Update estimate display
+            document.getElementById('timelineEstimate').textContent = formatDuration(weeks);
+
+            // Update progress bar (0-26 weeks maps to 0-100%)
+            const progress = Math.min(100, (weeks / 26) * 100);
+            document.getElementById('timelineProgress').style.width = `${progress}%`;
+
+            // Define phases with their section mappings
+            const phases = [
+                { icon: '📋', name: 'Discovery & Planning', sections: [0], baseWeeks: 2 },
+                { icon: '⚙️', name: 'Backend Development', sections: [1], baseWeeks: 6 },
+                { icon: '🌐', name: '3D Globe Engine', sections: [2], baseWeeks: 4 },
+                { icon: '📱', name: 'Mobile Apps', sections: [3, 4], baseWeeks: 4 },
+                { icon: '🖥️', name: 'Desktop Apps', sections: [5, 6], baseWeeks: 3 },
+                { icon: '🔗', name: 'Customer Portal', sections: [7], baseWeeks: 3 },
+                { icon: '🎯', name: 'Onboarding & Demo', sections: [8], baseWeeks: 2 },
+                { icon: '🛡️', name: 'Testing & Security', sections: [9], baseWeeks: 2 }
+            ];
+
+            // Calculate which phases are active based on selections
+            const activePhases = phases.map(phase => {
+                const hasSelection = phase.sections.some(sIdx =>
+                    sectionTotals[sIdx] && (sectionTotals[sIdx].min > 0 || sectionTotals[sIdx].max > 0)
+                );
+                const phaseCost = phase.sections.reduce((sum, sIdx) => {
+                    return sum + (sectionTotals[sIdx] ? (sectionTotals[sIdx].min + sectionTotals[sIdx].max) / 2 : 0);
+                }, 0);
+                const phaseWeeks = hasSelection ? Math.max(1, Math.round(phase.baseWeeks * (phaseCost / 100000))) : 0;
+                return { ...phase, active: hasSelection, weeks: phaseWeeks };
+            });
+
+            // Render phases
+            const phasesEl = document.getElementById('timelinePhases');
+            phasesEl.innerHTML = activePhases.map(phase => `
+                <div class="timeline-phase ${phase.active ? 'active' : ''}">
+                    <span class="phase-icon">${phase.icon}</span>
+                    <div class="phase-info">
+                        <div class="phase-name">${phase.name}</div>
+                        <div class="phase-duration">${phase.active ? formatDuration(phase.weeks) : 'Not selected'}</div>
+                    </div>
+                    <span class="phase-status ${phase.active ? 'included' : ''}">${phase.active ? 'Included' : 'Optional'}</span>
+                </div>
+            `).join('');
+        }
+
+        function selectAll() {
+            Object.keys(selections).forEach(key => {
+                selections[key].selected = true;
+                document.getElementById(`check${key}`).checked = true;
+            });
+            updateTotals();
+        }
+
+        function clearAll() {
+            Object.keys(selections).forEach(key => {
+                selections[key].selected = false;
+                document.getElementById(`check${key}`).checked = false;
+            });
+            updateTotals();
+        }
+
+        function openModal() {
+            const selected = Object.entries(selections).filter(([k, v]) => v.selected);
+            if (selected.length === 0) { alert('Please select at least one item.'); return; }
+
+            let summaryHtml = '';
+            let totalMin = 0, totalMax = 0;
+            selected.forEach(([key, sel]) => {
+                const val = calculateValue(sel);
+                totalMin += val.min;
+                totalMax += val.max;
+                summaryHtml += `<div class="order-item"><span>${sel.name}</span><span>${formatRange(val.min, val.max)}</span></div>`;
+            });
+
+            // Retainer Logic (Display Only)
+            const retainerMin = Math.round(totalMin * 0.07);
+            const retainerMax = Math.round(totalMax * 0.07);
+
+            // Discount Logic (50% of Subtotal)
+            const discountMin = Math.round(totalMin * 0.5);
+            const discountMax = Math.round(totalMax * 0.5);
+            const finalMin = totalMin - discountMin;
+            const finalMax = totalMax - discountMax;
+
+            // Append Extras
+            summaryHtml += `
+                <div class="order-item" style="border-top: 1px solid var(--border); margin-top: 8px; padding-top: 8px;">
+                    <span style="color: var(--accent-blue);">Retainer Fee (7%)</span>
+                    <span style="color: var(--accent-blue);">${formatRange(retainerMin, retainerMax)}</span>
+                </div>
+                <div class="order-item">
+                    <span style="color: var(--accent-red);">Wife Discount (50%)</span>
+                    <span style="color: var(--accent-red);">-${formatRange(discountMin, discountMax)}</span>
+                </div>
+            `;
+
+            document.getElementById('orderSummary').innerHTML = summaryHtml;
+            document.getElementById('modalTotal').textContent = formatRange(finalMin, finalMax);
+            document.getElementById('orderModal').classList.add('active');
+        }
+
+        function closeModal() { document.getElementById('orderModal').classList.remove('active'); }
+
+        document.getElementById('orderForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const selected = Object.entries(selections).filter(([k, v]) => v.selected);
+            let totalMin = 0, totalMax = 0;
+            const items = selected.map(([key, sel]) => {
+                const val = calculateValue(sel);
+                totalMin += val.min;
+                totalMax += val.max;
+                return `- ${sel.name}: ${formatRange(val.min, val.max)}`;
+            });
+
+            // Final Calculations
+            const retainerMin = Math.round(totalMin * 0.07);
+            const retainerMax = Math.round(totalMax * 0.07);
+
+            const discountMin = Math.round(totalMin * 0.5);
+            const discountMax = Math.round(totalMax * 0.5);
+            const finalMin = totalMin - discountMin;
+            const finalMax = totalMax - discountMax;
+
+            items.push(`\n** Retainer Fee (7%): ${formatRange(retainerMin, retainerMax)} **`);
+            items.push(`** DISCOUNT: -${formatRange(discountMin, discountMax)} (Wife Discount) **`);
+
+            // Get timeline estimate
+            const timelineEstimate = document.getElementById('timelineEstimate').textContent;
+
+            const orderText = `
+HERMETIC LABS PROJECT REQUEST
+====================================================
+Company: ${document.getElementById('companyName').value}
+Contact: ${document.getElementById('contactName').value}
+Email: ${document.getElementById('email').value}
+Phone: ${document.getElementById('phone').value || 'N/A'}
+
+SELECTED ITEMS:
+${items.join('\n')}
+
+ESTIMATED TOTAL: ${formatRange(finalMin, finalMax)}
+ESTIMATED DELIVERY: ${timelineEstimate}
+
+ADDITIONAL NOTES:
+${document.getElementById('notes').value || 'None'}
+
+Generated: ${new Date().toLocaleString()}
+            `.trim();
+
+            const subject = encodeURIComponent(`Project Request from ${document.getElementById('companyName').value}`);
+            const body = encodeURIComponent(orderText);
+            window.location.href = `mailto:DwayneTillman@7HermeticLabs.Dev?subject=${subject}&body=${body}`;
+            closeModal();
+        });
+
+        function copyToClipboard() {
+            const selected = Object.entries(selections).filter(([k, v]) => v.selected);
+            if (selected.length === 0) { alert('Please select at least one item.'); return; }
+
+            let totalMin = 0, totalMax = 0;
+            const items = selected.map(([key, sel]) => {
+                const val = calculateValue(sel);
+                totalMin += val.min;
+                totalMax += val.max;
+                return `- ${sel.name}: ${formatRange(val.min, val.max)}`;
+            });
+
+            // Final Calculations
+            const retainerMin = Math.round(totalMin * 0.07);
+            const retainerMax = Math.round(totalMax * 0.07);
+
+            const discountMin = Math.round(totalMin * 0.5);
+            const discountMax = Math.round(totalMax * 0.5);
+            const finalMin = totalMin - discountMin;
+            const finalMax = totalMax - discountMax;
+
+            items.push(`\n** Retainer Fee (7%): ${formatRange(retainerMin, retainerMax)} **`);
+            items.push(`** DISCOUNT: -${formatRange(discountMin, discountMax)} (Wife Discount) **`);
+
+            // Get timeline estimate
+            const timelineEstimate = document.getElementById('timelineEstimate').textContent;
+
+            const orderText = `
+HERMETIC LABS PROJECT REQUEST
+====================================================
+Company: ${document.getElementById('companyName').value}
+Contact: ${document.getElementById('contactName').value}
+Email: ${document.getElementById('email').value}
+Phone: ${document.getElementById('phone').value || 'N/A'}
+
+SELECTED ITEMS:
+${items.join('\n')}
+
+ESTIMATED TOTAL: ${formatRange(finalMin, finalMax)}
+ESTIMATED DELIVERY: ${timelineEstimate}
+
+ADDITIONAL NOTES:
+${document.getElementById('notes').value || 'None'}
+
+Generated: ${new Date().toLocaleString()}
+            `.trim();
+
+            navigator.clipboard.writeText(orderText).then(() => {
+                alert('Request copied to clipboard! You can now paste it into your email client.');
+            }).catch(err => {
+                console.error('Failed to copy text: ', err);
+                alert('Failed to copy to clipboard. Please select the text manually.');
+            });
+        }
+
+        init();
+    </script>
+</body>
+
+</html>
