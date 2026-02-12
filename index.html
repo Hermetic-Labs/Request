@@ -940,8 +940,12 @@
                 </div>
             `).join('');
 
-            // Add Retainer & Discount Rows
+            // Add Subtotal, Retainer & Discount Rows
             const extrasHtml = `
+                <div class="summary-item" style="grid-column: 1 / -1; background: rgba(255,255,255,0.04); border-color: var(--text-dim);">
+                    <div class="summary-label" style="color: var(--text); font-weight: bold;">Subtotal</div>
+                    <div class="summary-value" style="color: var(--text); font-weight: 700;">${formatRange(grandMin, grandMax)}</div>
+                </div>
                 <div class="summary-item" style="background: rgba(77, 159, 255, 0.1); border-color: var(--accent-blue);">
                     <div class="summary-label" style="color: var(--accent-blue); font-weight: bold;">Retainer Fee (7%)</div>
                     <div class="summary-value" style="color: var(--accent-blue);">${formatRange(retainerMin, retainerMax)}</div>
