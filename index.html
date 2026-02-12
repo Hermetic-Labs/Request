@@ -116,7 +116,7 @@
 
         .item {
             display: grid;
-            grid-template-columns: 1fr auto auto auto;
+            grid-template-columns: 1fr auto auto;
             gap: 12px;
             align-items: center;
             padding: 10px 12px;
@@ -855,11 +855,7 @@
                                 <div class="item">
                                     <div class="item-name">${item.name}</div>
                                     <div class="item-range">${formatRange(item.min, item.max)}</div>
-                                    <div class="slider-container">
-                                        <input type="range" min="0" max="100" value="50" oninput="updateSlider('${key}', this.value)" id="slider${key}">
-                                    </div>
                                     <input type="checkbox" onchange="toggleItem('${key}', this.checked)" id="check${key}">
-                                    <div class="item-value" id="value${key}">$0K</div>
                                     <div class="item-desc">"${item.desc}"</div>
                                 </div>
                             `;
@@ -881,19 +877,9 @@
             updateTotals();
         }
 
-        function updateSlider(key, value) {
-            selections[key].percent = parseInt(value);
-            updateTotals();
-        }
-
-
-
         function calculateValue(sel) {
             if (!sel.selected) return { min: 0, max: 0 };
-            const range = sel.max - sel.min;
-            const minVal = sel.min + (range * sel.percent / 100 * 0.5);
-            const maxVal = sel.min + range * 0.5 + (range * sel.percent / 100 * 0.5);
-            return { min: Math.round(minVal), max: Math.round(maxVal) };
+            return { min: sel.min, max: sel.max };
         }
 
         function updateTotals() {
@@ -902,7 +888,6 @@
 
             Object.entries(selections).forEach(([key, sel]) => {
                 const val = calculateValue(sel);
-                document.getElementById(`value${key}`).textContent = sel.selected ? formatRange(val.min, val.max) : '$0K';
                 grandMin += val.min;
                 grandMax += val.max;
 
