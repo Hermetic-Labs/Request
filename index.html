@@ -902,10 +902,6 @@
                 document.getElementById(`sectionSliderTotal${sIdx}`).textContent = formatRange(totals.min, totals.max);
             });
 
-            // Retainer Logic (Display Only)
-            const retainerMin = Math.round(grandMin * 0.07);
-            const retainerMax = Math.round(grandMax * 0.07);
-
             // Discount Logic (50% of Subtotal)
             const discountMin = Math.round(grandMin * 0.5);
             const discountMax = Math.round(grandMax * 0.5);
@@ -913,6 +909,10 @@
             // Final Total (Subtotal - Discount)
             const finalMin = grandMin - discountMin;
             const finalMax = grandMax - discountMax;
+
+            // Retainer Logic (7% of Discounted Total)
+            const retainerMin = Math.round(finalMin * 0.07);
+            const retainerMax = Math.round(finalMax * 0.07);
 
             // Update Displays
             document.getElementById('grandTotal').textContent = formatRange(finalMin, finalMax);
@@ -925,19 +925,19 @@
                 </div>
             `).join('');
 
-            // Add Subtotal, Retainer & Discount Rows
+            // Add Subtotal, Discount & Retainer Rows
             const extrasHtml = `
                 <div class="summary-item" style="grid-column: 1 / -1; background: rgba(255,255,255,0.04); border-color: var(--text-dim);">
                     <div class="summary-label" style="color: var(--text); font-weight: bold;">Subtotal</div>
                     <div class="summary-value" style="color: var(--text); font-weight: 700;">${formatRange(grandMin, grandMax)}</div>
                 </div>
-                <div class="summary-item" style="background: rgba(77, 159, 255, 0.1); border-color: var(--accent-blue);">
-                    <div class="summary-label" style="color: var(--accent-blue); font-weight: bold;">Retainer Fee (7%)</div>
-                    <div class="summary-value" style="color: var(--accent-blue);">${formatRange(retainerMin, retainerMax)}</div>
-                </div>
                 <div class="summary-item discount-row">
                     <div class="summary-label discount-label">Wife Discount (50%)</div>
                     <div class="summary-value discount-value">-${formatRange(discountMin, discountMax)}</div>
+                </div>
+                <div class="summary-item" style="background: rgba(77, 159, 255, 0.1); border-color: var(--accent-blue);">
+                    <div class="summary-label" style="color: var(--accent-blue); font-weight: bold;">Retainer Fee (7%)</div>
+                    <div class="summary-value" style="color: var(--accent-blue);">${formatRange(retainerMin, retainerMax)}</div>
                 </div>
             `;
 
@@ -1041,25 +1041,25 @@
                 summaryHtml += `<div class="order-item"><span>${sel.name}</span><span>${formatRange(val.min, val.max)}</span></div>`;
             });
 
-            // Retainer Logic (Display Only)
-            const retainerMin = Math.round(totalMin * 0.07);
-            const retainerMax = Math.round(totalMax * 0.07);
-
             // Discount Logic (50% of Subtotal)
             const discountMin = Math.round(totalMin * 0.5);
             const discountMax = Math.round(totalMax * 0.5);
             const finalMin = totalMin - discountMin;
             const finalMax = totalMax - discountMax;
 
+            // Retainer Logic (7% of Discounted Total)
+            const retainerMin = Math.round(finalMin * 0.07);
+            const retainerMax = Math.round(finalMax * 0.07);
+
             // Append Extras
             summaryHtml += `
                 <div class="order-item" style="border-top: 1px solid var(--border); margin-top: 8px; padding-top: 8px;">
-                    <span style="color: var(--accent-blue);">Retainer Fee (7%)</span>
-                    <span style="color: var(--accent-blue);">${formatRange(retainerMin, retainerMax)}</span>
-                </div>
-                <div class="order-item">
                     <span style="color: var(--accent-red);">Wife Discount (50%)</span>
                     <span style="color: var(--accent-red);">-${formatRange(discountMin, discountMax)}</span>
+                </div>
+                <div class="order-item">
+                    <span style="color: var(--accent-blue);">Retainer Fee (7%)</span>
+                    <span style="color: var(--accent-blue);">${formatRange(retainerMin, retainerMax)}</span>
                 </div>
             `;
 
@@ -1082,16 +1082,16 @@
             });
 
             // Final Calculations
-            const retainerMin = Math.round(totalMin * 0.07);
-            const retainerMax = Math.round(totalMax * 0.07);
-
             const discountMin = Math.round(totalMin * 0.5);
             const discountMax = Math.round(totalMax * 0.5);
             const finalMin = totalMin - discountMin;
             const finalMax = totalMax - discountMax;
 
-            items.push(`\n** Retainer Fee (7%): ${formatRange(retainerMin, retainerMax)} **`);
-            items.push(`** DISCOUNT: -${formatRange(discountMin, discountMax)} (Wife Discount) **`);
+            const retainerMin = Math.round(finalMin * 0.07);
+            const retainerMax = Math.round(finalMax * 0.07);
+
+            items.push(`\n** DISCOUNT: -${formatRange(discountMin, discountMax)} (Wife Discount) **`);
+            items.push(`** Retainer Fee (7%): ${formatRange(retainerMin, retainerMax)} **`);
 
             // Get timeline estimate
             const timelineEstimate = document.getElementById('timelineEstimate').textContent;
